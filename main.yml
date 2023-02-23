@@ -123,7 +123,7 @@ Resources:
           ln -s /root/aws-cfn-bootstrap-latest/init/ubuntu/cfn-hup /etc/init.d/cfn-hup
           /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource EC2Instance --configsets full_install --region ${AWS::Region}
 
-          # Esta tiene que serla ultima instrucción
+          # Esta tiene que ser la ultima instrucción
           /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource EC2Instance --region ${AWS::Region}
       Tags:
         - Key: Name
@@ -146,6 +146,25 @@ Resources:
       Tags:
         - Key: Name
           Value: !Ref AWS::StackName
+  Application:
+    Type: AWS::CodeDeploy::Application
+    Properties:
+      ApplicationName: "HelloWorldNode"
+      ComputePlatform: Server
+  DeploymentGroup: 
+  Type: AWS::CodeDeploy::DeploymentGroup 
+  Properties:
+    ApplicationName: !Ref Application
+    DeploymentGroupName: "despliegueAPP"
+    DeploymentStyle:
+      DeploymentType: IN_PLACE
+      DeploymentOption: WITHOUT_TRAFFIC_CONTROL
+      Ec2TagFilters:
+        - Key: "aws:cloudformation:stack-name"
+          Value: !Ref "AWS::StackName"
+          Type: "KEY_AND_VALUE"
+      ServiceRoleArn: "arn:aws:iam::943875773936:role/LabRole"
+
 Outputs:
   InstanceId:
     Description: 'InstanceId of the newly created EC2 instance'
